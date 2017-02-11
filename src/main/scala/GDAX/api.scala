@@ -18,25 +18,19 @@ object Client {
 
 class Public {
 
-  println("public client")
-  // Default
+  // Default to sandbox environment
   var url = "https://api-public.sandbox.gdax.com"
 
-  def products(callback: (Option[Any]) => Unit) = {
+  def products() : Future[Option[Any]] = {
 
-    val f = Future {
+    return Future {
       val resp: HttpResponse[String] = Http(url + "/products").asString
       JSON.parseFull(resp.body)
-    }
-
-    f.onComplete {
-      case Success(value) => { callback(value) }
-      case Failure(e) => e.printStackTrace
     }
   }
 
 }
 
 class Auth {
-  println("auth client")
+  println("TODO auth'd client")
 }
