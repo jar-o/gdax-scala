@@ -11,26 +11,44 @@ object Sample extends App {
   val pubclient = api.Client.public()
 
   val productsHandler = (v: Option[Any]) => {
-    v.foreach {
-      _.asInstanceOf[List[Map[Any,Any]]].foreach {
-        for ((k,v) <- _) printf("\t%s : %s\n", k, v)
+    v.foreach( (el: Any ) => {
+      el.asInstanceOf[List[Map[Any,Any]]].foreach {
+        (m: Map[Any, Any]) => {
+          m("id") match {
+            case "BTC-USD" => {
+              val id = m("id").asInstanceOf[String]
+              pubclient.productOrderBook(id,"2").onComplete {
+                  case Success(value) => println(value + "\n^productOrderBook")
+                  case Failure(e) => e.printStackTrace
+              }
+              pubclient.productTicker(id).onComplete {
+                  case Success(value) => println(value + "\n^productTicker")
+                  case Failure(e) => e.printStackTrace
+              }
+              pubclient.productTrades(id).onComplete {
+                  case Success(value) => println(value + "\n^productTrades")
+                  case Failure(e) => e.printStackTrace
+              }
+              pubclient.productStats(id).onComplete {
+                  case Success(value) => println(value + "\n^productStats")
+                  case Failure(e) => e.printStackTrace
+              }
+            }
+            case _ => ;
+          }
+        }
       }
-    }
+    })
   }
 
   pubclient.products().onComplete {
     case Success(value) => productsHandler(value)
     case Failure(e) => e.printStackTrace
   }
-  //TODO just using this for concurrency atm, delete when have other examples
-  pubclient.products().onComplete {
-    case Success(value) => productsHandler(value)
-    case Failure(e) => e.printStackTrace
-  }
 
-  //TODO need a better way to "join" futures 
-  api.Client.sleep(500*3)
+  //TODO need a better way to "join" futures
+  api.Client.sleep(1000*3)
 
-  //TODO 
+  //TODO
   val authclient = api.Client.authenticated()
 }
