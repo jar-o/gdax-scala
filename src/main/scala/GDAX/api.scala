@@ -71,6 +71,14 @@ class Public {
     }
   }
 
+  def time() : Future[Option[Any]] = {
+    return Future {
+      val resp: HttpResponse[String] = Http(url + "/time").asString
+      JSON.parseFull(resp.body)
+    }
+  }
+
+
 }
 
 class Auth {

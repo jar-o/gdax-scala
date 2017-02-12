@@ -51,6 +51,10 @@ object Sample extends App {
     case Failure(e) => e.printStackTrace
   }
 
+  pubclient.time().onComplete {
+    case Success(value) => println(value + "\n^time\n")
+    case Failure(e) => e.printStackTrace
+  }
 
   //TODO need a better way to "join" futures
   api.Client.sleep(1000*3)
