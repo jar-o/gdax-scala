@@ -18,19 +18,19 @@ object Sample extends App {
             case "BTC-USD" => {
               val id = m("id").asInstanceOf[String]
               pubclient.productOrderBook(id,"2").onComplete {
-                  case Success(value) => println(value + "\n^productOrderBook")
+                  case Success(value) => println(value + "\n^productOrderBook\n")
                   case Failure(e) => e.printStackTrace
               }
               pubclient.productTicker(id).onComplete {
-                  case Success(value) => println(value + "\n^productTicker")
+                  case Success(value) => println(value + "\n^productTicker\n")
                   case Failure(e) => e.printStackTrace
               }
               pubclient.productTrades(id).onComplete {
-                  case Success(value) => println(value + "\n^productTrades")
+                  case Success(value) => println(value + "\n^productTrades\n")
                   case Failure(e) => e.printStackTrace
               }
               pubclient.productStats(id).onComplete {
-                  case Success(value) => println(value + "\n^productStats")
+                  case Success(value) => println(value + "\n^productStats\n")
                   case Failure(e) => e.printStackTrace
               }
             }
@@ -45,6 +45,12 @@ object Sample extends App {
     case Success(value) => productsHandler(value)
     case Failure(e) => e.printStackTrace
   }
+
+  pubclient.currencies().onComplete {
+    case Success(value) => println(value + "\n^currencies\n")
+    case Failure(e) => e.printStackTrace
+  }
+
 
   //TODO need a better way to "join" futures
   api.Client.sleep(1000*3)
