@@ -1,6 +1,9 @@
+/*
+ * This sample app demonstrates the GDAX library. All calls are completely
+ * async, based on scala Futures.
+ */
 import GDAX._
 
-// We need these to handle the futures that the library returns
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
@@ -60,5 +63,9 @@ object Sample extends App {
   api.Client.sleep(1000*3)
 
   //TODO
-  val authclient = api.Client.authenticated()
+  val authclient = api.Client.authenticated(
+    "one",
+    "two",
+    "three"
+  )
 }

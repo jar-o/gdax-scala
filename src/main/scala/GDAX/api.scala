@@ -10,8 +10,11 @@ object Client {
   def public() : Public = {
     return new Public()
   }
-  def authenticated() : Auth = {
-    return new Auth()
+  def authenticated(
+      apiKey: String,
+      secretKey: String,
+      passPhrase: String) : Auth = {
+    return new Auth(apiKey, secretKey, passPhrase)
   }
   def sleep(duration: Long) { Thread.sleep(duration) }
 }
@@ -78,9 +81,8 @@ class Public {
     }
   }
 
-
 }
 
-class Auth {
-  println("TODO auth'd client")
+class Auth(apiKey: String, secretKey: String, passPhrase: String) {
+  println(s"TODO auth'd client $apiKey $secretKey")
 }
