@@ -78,7 +78,7 @@ object Sample extends App {
 
   // hrm, this is just a glorified main thread sleep.
   var done = 0
-  def patience = Future { while(done < 6) { api.Client.sleep(1000) } }
+  def patience = Future { while(done < 7) { api.Client.sleep(1000) } }
   Await.ready(patience, Duration.Inf)
 
 }

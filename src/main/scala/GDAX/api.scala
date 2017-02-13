@@ -89,7 +89,7 @@ class Private(apiKey: String, secretKey: String, passPhrase: String) {
 
   var httpreq : HttpRequest = Http(url + "/accounts")//.postData("{\"helo\":1}")
 
-  def accounts() : Future[Option[Any]] {
+  def accounts() : Future[Option[Any]] = {
     val auth = CoinbaseAuth(apiKey,
       secretKey, passPhrase, url + "/accounts", "GET").headers()
     return HttpJsonFutures.get(url = url + "/accounts", headers = auth)
