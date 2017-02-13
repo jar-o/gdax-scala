@@ -18,7 +18,7 @@ object Sample extends App {
 
   // The number of tests we do below. When this reaches 0 the main thread
   // exits.
-  var tests = 13
+  var tests = 14
 
   val pubclient = api.Client.public()
 
@@ -126,6 +126,18 @@ object Sample extends App {
     case Failure(e) => e.printStackTrace
     case _ => ;
   }
+
+  authclient.cancelOrder("68e6a28f-ae28-4788-8d4f-5ab4e5e5ae08").onComplete {
+    case Success(Some(resp)) => {
+      tests -= 1
+      println(resp + "\n^cancelOrder\n")
+      assert(resp.asInstanceOf[Map[String,String]]("message") == "NotFound")
+    }
+    case Failure(e) => e.printStackTrace
+    case _ => ;
+  }
+
+
 
 
 

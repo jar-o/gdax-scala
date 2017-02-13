@@ -62,13 +62,14 @@ object HttpJsonFutures {
   def delete(
     url: String,
     headers: Map[String, String] = null,
-    json: String
+    json: String = null
   ) : Future[Option[Any]] = {
     return Future {
       var httpreq = Http(url)
       if (headers != null) { httpreq = httpreq.headers(headers) }
-      httpreq = httpreq.postData(json).
-        method("DELETE").header("Content-Type", "application/json; charset=utf-8")
+      if (json != null) { httpreq = httpreq.postData(json) }
+      httpreq = httpreq.method("DELETE")
+        .header("Content-Type", "application/json; charset=utf-8")
       val resp: HttpResponse[String] = httpreq.asString
       JSON.parseFull(resp.body)
     }
@@ -171,11 +172,10 @@ class Private(apiKey: String, secretKey: String, passPhrase: String) {
     )
   }
 
-  def cancelOrder(json: String) : Future[Option[Any]] = {
+  def cancelOrder(id: String) : Future[Option[Any]] = {
     val auth = CoinbaseAuth(apiKey,
-      secretKey, passPhrase, url + "/orders", "DELETE", json)
-    return HttpJsonFutures.delete(
-      url = url + "/orders", headers = auth, json = json)
+      secretKey, passPhrase, url + s"/orders/$id", "DELETE")
+    return HttpJsonFutures.delete(url = url + s"/orders/$id", headers = auth)
   }
 
 }
