@@ -154,6 +154,12 @@ class Private(apiKey: String, secretKey: String, passPhrase: String) {
       url = url + "/orders", params = params, headers = auth)
   }
 
+  def getOrder(id: String) : Future[Option[Any]] = {
+    val auth = CoinbaseAuth(apiKey,
+      secretKey, passPhrase, url + s"/orders/$id", "GET")
+    return HttpJsonFutures.get(url = url + s"/orders/$id", headers = auth)
+  }
+
   //TODO json: Map[String, Any] (need to figure out recursiveness on JSONObject
   def placeOrder(json: String) : Future[Option[Any]] = {
     val auth = CoinbaseAuth(apiKey,
