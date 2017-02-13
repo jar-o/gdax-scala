@@ -147,7 +147,7 @@ class Private(apiKey: String, secretKey: String, passPhrase: String) {
     return HttpJsonFutures.get(url = url + s"/accounts/$id/holds", headers = auth)
   }
 
-  def orders(params: Map[String, String] = null) : Future[Option[Any]] = {
+  def getOrders(params: Map[String, String] = null) : Future[Option[Any]] = {
     val auth = CoinbaseAuth(apiKey,
       secretKey, passPhrase, url + "/orders", "GET")
     return HttpJsonFutures.get(
@@ -155,7 +155,7 @@ class Private(apiKey: String, secretKey: String, passPhrase: String) {
   }
 
   //TODO json: Map[String, Any] (need to figure out recursiveness on JSONObject
-  def order(json: String) : Future[Option[Any]] = {
+  def placeOrder(json: String) : Future[Option[Any]] = {
     val auth = CoinbaseAuth(apiKey,
       secretKey, passPhrase, url + "/orders", "POST", json)
     return HttpJsonFutures.post(
@@ -165,7 +165,7 @@ class Private(apiKey: String, secretKey: String, passPhrase: String) {
     )
   }
 
-  def orderCancel(json: String) : Future[Option[Any]] = {
+  def cancelOrder(json: String) : Future[Option[Any]] = {
     val auth = CoinbaseAuth(apiKey,
       secretKey, passPhrase, url + "/orders", "DELETE", json)
     return HttpJsonFutures.delete(

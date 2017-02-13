@@ -102,14 +102,14 @@ object Sample extends App {
     case Failure(e) => e.printStackTrace
   }
 
-  // No available funds
-  authclient.order("{\"size\":\"0.01\",\"price\":\"0.100\",\"side\":\"buy\",\"product_id\":\"BTC-USD\"}").onComplete {
+  // Insufficient funds
+  authclient.placeOrder("{\"size\":\"0.01\",\"price\":\"0.100\",\"side\":\"buy\",\"product_id\":\"BTC-USD\"}").onComplete {
     case Success(resp) => { done += 1; println(resp + "\n^order\n") }
     case Failure(e) => e.printStackTrace
   }
 
-  authclient.orders().onComplete {
-    case Success(resp) => { done += 1; println(resp + "\n^orders\n") }
+  authclient.getOrders().onComplete {
+    case Success(resp) => { done += 1; println(resp + "\n^getOrders\n") }
     case Failure(e) => e.printStackTrace
   }
 
