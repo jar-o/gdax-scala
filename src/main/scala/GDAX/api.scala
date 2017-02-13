@@ -52,10 +52,24 @@ object HttpJsonFutures {
     return Future {
       var httpreq = Http(url)
       if (headers != null) { httpreq = httpreq.headers(headers) }
-      httpreq = httpreq.postData(json).header("Content-Type", "application/json; charset=utf-8")
-      println(httpreq)
+      httpreq = httpreq.postData(json).
+        header("Content-Type", "application/json; charset=utf-8")
       val resp: HttpResponse[String] = httpreq.asString
-      println(resp.body)
+      JSON.parseFull(resp.body)
+    }
+  }
+
+  def delete(
+    url: String,
+    headers: Map[String, String] = null,
+    json: String
+  ) : Future[Option[Any]] = {
+    return Future {
+      var httpreq = Http(url)
+      if (headers != null) { httpreq = httpreq.headers(headers) }
+      httpreq = httpreq.postData(json).
+        method("DELETE").header("Content-Type", "application/json; charset=utf-8")
+      val resp: HttpResponse[String] = httpreq.asString
       JSON.parseFull(resp.body)
     }
   }
@@ -133,6 +147,13 @@ class Private(apiKey: String, secretKey: String, passPhrase: String) {
     return HttpJsonFutures.get(url = url + s"/accounts/$id/holds", headers = auth)
   }
 
+  def orders(params: Map[String, String] = null) : Future[Option[Any]] = {
+    val auth = CoinbaseAuth(apiKey,
+      secretKey, passPhrase, url + "/orders", "GET")
+    return HttpJsonFutures.get(
+      url = url + "/orders", params = params, headers = auth)
+  }
+
   //TODO json: Map[String, Any] (need to figure out recursiveness on JSONObject
   def order(json: String) : Future[Option[Any]] = {
     val auth = CoinbaseAuth(apiKey,
@@ -142,6 +163,13 @@ class Private(apiKey: String, secretKey: String, passPhrase: String) {
       headers = auth,
       json = json
     )
+  }
+
+  def orderCancel(json: String) : Future[Option[Any]] = {
+    val auth = CoinbaseAuth(apiKey,
+      secretKey, passPhrase, url + "/orders", "DELETE", json)
+    return HttpJsonFutures.delete(
+      url = url + "/orders", headers = auth, json = json)
   }
 
 }

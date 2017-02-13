@@ -91,6 +91,7 @@ object Sample extends App {
                   case Success(resp) => { done += 1; println(resp + "\n^accountHolds\n") }
                   case Failure(e) => e.printStackTrace
                 }
+
               }
               case _ => ;
             }
@@ -101,8 +102,14 @@ object Sample extends App {
     case Failure(e) => e.printStackTrace
   }
 
+  // No available funds
   authclient.order("{\"size\":\"0.01\",\"price\":\"0.100\",\"side\":\"buy\",\"product_id\":\"BTC-USD\"}").onComplete {
     case Success(resp) => { done += 1; println(resp + "\n^order\n") }
+    case Failure(e) => e.printStackTrace
+  }
+
+  authclient.orders().onComplete {
+    case Success(resp) => { done += 1; println(resp + "\n^orders\n") }
     case Failure(e) => e.printStackTrace
   }
 
