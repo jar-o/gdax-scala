@@ -88,30 +88,22 @@ class Private(apiKey: String, secretKey: String, passPhrase: String) {
   var url = "https://api-public.sandbox.gdax.com"
 
   var httpreq : HttpRequest = Http(url + "/accounts")//.postData("{\"helo\":1}")
-  val auth = CoinbaseAuth(
-    apiKey,
-    secretKey,
-    passPhrase,
-    httpreq//,
-    //"{\"helo\":1}" //ugh, TODO
-  ).headers()
 
-  HttpJsonFutures.get(url = url + "/accounts", headers = auth).onComplete {
-    case Success(resp) => { println(resp + "\n^accounts\n") }
-    case Failure(e) => e.printStackTrace
+  def accounts() : Future[Option[Any]] {
+    val auth = CoinbaseAuth(apiKey,
+      secretKey, passPhrase, url + "/accounts", "GET").headers()
+    return HttpJsonFutures.get(url = url + "/accounts", headers = auth)
   }
 }
 
-case class CoinbaseAuth(
-    apiKey: String, secretKey: String, passPhrase: String,
-    httpreq: HttpRequest, data: String = "") { //TODO how to get at in httpreq
+// Construct the Auth headers expected by GDAX
+case class CoinbaseAuth(apiKey: String, secretKey: String,
+    passPhrase: String, url: String, verb: String, data: String = "") {
 
   def headers() : Map[String, String] = {
     val timestamp: Long = System.currentTimeMillis / 1000
-    val reqpath: String = new URL(httpreq.url).getPath()
-
-    val message = timestamp + httpreq.method.toUpperCase + reqpath + data
-    println(s"message $message")
+    val reqpath: String = new URL(url).getPath()
+    val message = timestamp + verb.toUpperCase + reqpath + data
     val hmacKey: Array[Byte] = Base64.decode(secretKey)
     val secret = new SecretKeySpec(hmacKey, "HmacSHA256")
     val hmac = Mac.getInstance("HmacSHA256")

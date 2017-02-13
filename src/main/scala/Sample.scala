@@ -26,19 +26,19 @@ object Sample extends App {
             case "BTC-USD" => {
               val id = m("id").asInstanceOf[String]
               pubclient.productOrderBook(id,"2").onComplete {
-                  case Success(value) => { done += 1; println(value + "\n^productOrderBook\n") }
+                  case Success(resp) => { done += 1; println(resp + "\n^productOrderBook\n") }
                   case Failure(e) => e.printStackTrace
               }
               pubclient.productTicker(id).onComplete {
-                  case Success(value) => { done += 1; println(value + "\n^productTicker\n") }
+                  case Success(resp) => { done += 1; println(resp + "\n^productTicker\n") }
                   case Failure(e) => e.printStackTrace
               }
               pubclient.productTrades(id).onComplete {
-                  case Success(value) => { done += 1; println(value + "\n^productTrades\n") }
+                  case Success(resp) => { done += 1; println(resp + "\n^productTrades\n") }
                   case Failure(e) => e.printStackTrace
               }
               pubclient.productStats(id).onComplete {
-                  case Success(value) => { done += 1; println(value + "\n^productStats\n") }
+                  case Success(resp) => { done += 1; println(resp + "\n^productStats\n") }
                   case Failure(e) => e.printStackTrace
               }
             }
@@ -50,25 +50,31 @@ object Sample extends App {
   }
 
   pubclient.products().onComplete {
-    case Success(value) => productsHandler(value)
+    case Success(resp) => productsHandler(resp)
     case Failure(e) => e.printStackTrace
   }
 
   pubclient.currencies().onComplete {
-    case Success(value) => { done += 1; println(value + "\n^currencies\n") }
+    case Success(resp) => { done += 1; println(resp + "\n^currencies\n") }
     case Failure(e) => e.printStackTrace
   }
 
   pubclient.time().onComplete {
-    case Success(value) => { done += 1; println(value + "\n^time\n") }
+    case Success(resp) => { done += 1; println(resp + "\n^time\n") }
     case Failure(e) => e.printStackTrace
   }
 
+  // Authenticated (private) client methods. Requires API credentials
   val authclient = api.Client.authenticated(
     sys.env("APIKEY"),
     sys.env("APISECRET"),
     sys.env("APIPASSPHRASE")
   )
+
+  authclient.accounts().onComplete {
+    case Success(resp) => { done += 1; println(resp + "\n^accounts\n") }
+    case Failure(e) => e.printStackTrace
+  }
 
   // hrm, this is just a glorified main thread sleep.
   var done = 0
