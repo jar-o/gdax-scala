@@ -20,8 +20,8 @@ object Client {
   def authenticated(
       apiKey: String,
       secretKey: String,
-      passPhrase: String) : Auth = {
-    return new Auth(apiKey, secretKey, passPhrase)
+      passPhrase: String) : Private = {
+    return new Private(apiKey, secretKey, passPhrase)
   }
 
   def sleep(duration: Long) { Thread.sleep(duration) }
@@ -33,11 +33,11 @@ object HttpJsonFutures {
   def get(
     url: String,
     params: Map[String, String] = null,
-    headers: Map[String, String] = Map()
+    headers: Map[String, String] = null
   ) : Future[Option[Any]] = {
     return Future {
       var httpreq = Http(url)
-      for( (k,v) <- headers) { httpreq.header(k,v) }
+      if (headers != null) { httpreq = httpreq.headers(headers) }
       val resp: HttpResponse[String] = if (params == null)
         httpreq.asString else httpreq.params(params).asString
       JSON.parseFull(resp.body)
@@ -83,7 +83,7 @@ class Public {
 
 }
 
-class Auth(apiKey: String, secretKey: String, passPhrase: String) {
+class Private(apiKey: String, secretKey: String, passPhrase: String) {
   // Default to sandbox environment
   var url = "https://api-public.sandbox.gdax.com"
 
@@ -95,9 +95,11 @@ class Auth(apiKey: String, secretKey: String, passPhrase: String) {
     httpreq//,
     //"{\"helo\":1}" //ugh, TODO
   ).headers()
-  for ((k,v) <- auth) { httpreq.header(k,v) }
-  val resp: HttpResponse[String] = httpreq.asString
-  println(resp)
+
+  HttpJsonFutures.get(url = url + "/accounts", headers = auth).onComplete {
+    case Success(resp) => { println(resp + "\n^accounts\n") }
+    case Failure(e) => e.printStackTrace
+  }
 }
 
 case class CoinbaseAuth(
