@@ -27,11 +27,19 @@ object Client {
   def sleep(duration: Long) { Thread.sleep(duration) }
 }
 
+// Object to handle basic HTTP requests by wrapping them in a Future,
+// constructing and calling, and finally parsing the body to JSON.
 object HttpJsonFutures {
-  def get(url: String, params: Map[String, String] = null) : Future[Option[Any]] = {
+  def get(
+    url: String,
+    params: Map[String, String] = null,
+    headers: Map[String, String] = Map()
+  ) : Future[Option[Any]] = {
     return Future {
+      var httpreq = Http(url)
+      for( (k,v) <- headers) { httpreq.header(k,v) }
       val resp: HttpResponse[String] = if (params == null)
-        Http(url).asString else Http(url).params(params).asString
+        httpreq.asString else httpreq.params(params).asString
       JSON.parseFull(resp.body)
     }
   }

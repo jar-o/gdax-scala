@@ -70,10 +70,9 @@ object Sample extends App {
     sys.env("APIPASSPHRASE")
   )
 
+  // hrm, this is just a glorified main thread sleep.
   var done = 0
   def patience = Future { while(done < 6) { api.Client.sleep(1000) } }
   Await.ready(patience, Duration.Inf)
 
-  //TODO need a better way to "join" futures
-  // api.Client.sleep(1000*2)
 }
