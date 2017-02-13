@@ -45,6 +45,7 @@ object HttpJsonFutures {
   }
 }
 
+// GDAX endpoints that require no authorization
 class Public {
   // Default to sandbox environment
   var url = "https://api-public.sandbox.gdax.com"
@@ -83,6 +84,7 @@ class Public {
 
 }
 
+// GDAX endpoints requiring API authorization
 class Private(apiKey: String, secretKey: String, passPhrase: String) {
   // Default to sandbox environment
   var url = "https://api-public.sandbox.gdax.com"
@@ -101,12 +103,19 @@ class Private(apiKey: String, secretKey: String, passPhrase: String) {
     return HttpJsonFutures.get(url = url + s"/accounts/$id", headers = auth)
   }
 
-  def accountHistory(id: String) : Future[Option[Any]] = {
+  // NOTE use params for pagination. See
+  //      https://docs.gdax.com/#get-account-history
+  def accountHistory(id: String, params: Map[String, String] = null) : Future[Option[Any]] = {
     val auth = CoinbaseAuth(apiKey,
       secretKey, passPhrase, url + s"/accounts/$id/ledger", "GET").headers()
-    return HttpJsonFutures.get(url = url + s"/accounts/$id/ledger", headers = auth)
+    return HttpJsonFutures.get(url + s"/accounts/$id/ledger", params, auth)
   }
 
+  def accountHolds(id: String) : Future[Option[Any]] = {
+    val auth = CoinbaseAuth(apiKey,
+      secretKey, passPhrase, url + s"/accounts/$id/holds", "GET").headers()
+    return HttpJsonFutures.get(url = url + s"/accounts/$id/holds", headers = auth)
+  }
 
 }
 

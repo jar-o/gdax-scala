@@ -87,6 +87,10 @@ object Sample extends App {
                   case Success(resp) => { done += 1; println(resp + "\n^accountHistory\n") }
                   case Failure(e) => e.printStackTrace
                 }
+                authclient.accountHolds(m("id").asInstanceOf[String]).onComplete {
+                  case Success(resp) => { done += 1; println(resp + "\n^accountHolds\n") }
+                  case Failure(e) => e.printStackTrace
+                }
               }
               case _ => ;
             }
@@ -99,7 +103,7 @@ object Sample extends App {
 
   // hrm, this is just a glorified main thread sleep.
   var done = 0
-  def patience = Future { while(done < 9) { api.Client.sleep(1000) } }
+  def patience = Future { while(done < 10) { api.Client.sleep(1000) } }
   Await.ready(patience, Duration.Inf)
 
 }
