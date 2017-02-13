@@ -178,6 +178,35 @@ class Private(apiKey: String, secretKey: String, passPhrase: String) {
     return HttpJsonFutures.delete(url = url + s"/orders/$id", headers = auth)
   }
 
+  def deposit(amount: String, coinbaseAccountId: String) : Future[Option[Any]] = {
+    return transfers(amount, coinbaseAccountId, "deposit")
+  }
+
+  def withdraw(amount: String, coinbaseAccountId: String) : Future[Option[Any]] = {
+    return transfers(amount, coinbaseAccountId, "withdraw")
+  }
+
+  private def transfers(
+    amount: String,
+    coinbaseAccountId: String,
+    transferType: String) : Future[Option[Any]] = {
+    val json = new JSONObject(
+      Map(
+        "amount" -> amount.toString(),
+        "coinbase_account_id" -> coinbaseAccountId,
+        "type" -> transferType
+      )).toString()
+    println(json)
+    val auth = CoinbaseAuth(apiKey,
+      secretKey, passPhrase, url + "/transfers", "POST", json)
+    return HttpJsonFutures.post(
+      url = url + "/transfers",
+      headers = auth,
+      json = json
+    )
+
+  }
+
 }
 
 // Construct the Auth headers expected by GDAX

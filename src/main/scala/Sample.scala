@@ -108,8 +108,13 @@ object Sample extends App {
 
   // Insufficient funds
   authclient.placeOrder("{\"size\":\"0.01\",\"price\":\"0.100\",\"side\":\"buy\",\"product_id\":\"BTC-USD\"}").onComplete {
-    case Success(resp) => { tests -= 1; println(resp + "\n^order\n") }
+    case Success(Some(resp)) => {
+      tests -= 1
+      println(resp + "\n^order\n")
+      assert(resp.asInstanceOf[Map[String,String]]("message") == "Insufficient funds")
+    }
     case Failure(e) => e.printStackTrace
+    case _ => ;
   }
 
   authclient.getOrders().onComplete {
@@ -137,9 +142,16 @@ object Sample extends App {
     case _ => ;
   }
 
-
-
-
+  // Seem to be getting timeout, perhaps because bogus coinbase_account_id?
+  // authclient.deposit("10.00", "b5344d81b42e65f81af9ceba").onComplete {
+  //   case Success(Some(resp)) => {
+  //     tests -= 1
+  //     println(resp + "\n^deposit\n")
+  //     // assert(resp.asInstanceOf[Map[String,String]]("message") == "Insufficient funds")
+  //   }
+  //   case Failure(e) => e.printStackTrace
+  //   case _ => ;
+  // }
 
   // hrm, this is just a glorified main thread sleep.
   def patience = Future { while(tests > 0) { api.Client.sleep(1000) } }
