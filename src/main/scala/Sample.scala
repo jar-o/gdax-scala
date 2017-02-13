@@ -101,6 +101,11 @@ object Sample extends App {
     case Failure(e) => e.printStackTrace
   }
 
+  authclient.order("{\"size\":\"0.01\",\"price\":\"0.100\",\"side\":\"buy\",\"product_id\":\"BTC-USD\"}").onComplete {
+    case Success(resp) => { done += 1; println(resp + "\n^order\n") }
+    case Failure(e) => e.printStackTrace
+  }
+
   // hrm, this is just a glorified main thread sleep.
   var done = 0
   def patience = Future { while(done < 10) { api.Client.sleep(1000) } }

@@ -43,6 +43,23 @@ object HttpJsonFutures {
       JSON.parseFull(resp.body)
     }
   }
+
+  def post(
+    url: String,
+    headers: Map[String, String] = null,
+    json: String
+  ) : Future[Option[Any]] = {
+    return Future {
+      var httpreq = Http(url)
+      if (headers != null) { httpreq = httpreq.headers(headers) }
+      httpreq = httpreq.postData(json).header("Content-Type", "application/json; charset=utf-8")
+      println(httpreq)
+      val resp: HttpResponse[String] = httpreq.asString
+      println(resp.body)
+      JSON.parseFull(resp.body)
+    }
+  }
+
 }
 
 // GDAX endpoints that require no authorization
@@ -103,8 +120,7 @@ class Private(apiKey: String, secretKey: String, passPhrase: String) {
     return HttpJsonFutures.get(url = url + s"/accounts/$id", headers = auth)
   }
 
-  // NOTE use params for pagination. See
-  //      https://docs.gdax.com/#get-account-history
+  // NOTE use params for pagination. See https://docs.gdax.com/#pagination
   def accountHistory(id: String, params: Map[String, String] = null) : Future[Option[Any]] = {
     val auth = CoinbaseAuth(apiKey,
       secretKey, passPhrase, url + s"/accounts/$id/ledger", "GET").headers()
@@ -115,6 +131,16 @@ class Private(apiKey: String, secretKey: String, passPhrase: String) {
     val auth = CoinbaseAuth(apiKey,
       secretKey, passPhrase, url + s"/accounts/$id/holds", "GET").headers()
     return HttpJsonFutures.get(url = url + s"/accounts/$id/holds", headers = auth)
+  }
+
+  def order(json: String) : Future[Option[Any]] = {
+    val auth = CoinbaseAuth(apiKey,
+      secretKey, passPhrase, url + "/orders", "POST", json).headers()
+    return HttpJsonFutures.post(
+      url = url + "/orders",
+      headers = auth,
+      json = json
+    )
   }
 
 }
