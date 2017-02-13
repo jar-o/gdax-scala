@@ -110,32 +110,33 @@ class Private(apiKey: String, secretKey: String, passPhrase: String) {
 
   def accounts() : Future[Option[Any]] = {
     val auth = CoinbaseAuth(apiKey,
-      secretKey, passPhrase, url + "/accounts", "GET").headers()
+      secretKey, passPhrase, url + "/accounts", "GET")
     return HttpJsonFutures.get(url = url + "/accounts", headers = auth)
   }
 
   def account(id: String) : Future[Option[Any]] = {
     val auth = CoinbaseAuth(apiKey,
-      secretKey, passPhrase, url + s"/accounts/$id", "GET").headers()
+      secretKey, passPhrase, url + s"/accounts/$id", "GET")
     return HttpJsonFutures.get(url = url + s"/accounts/$id", headers = auth)
   }
 
   // NOTE use params for pagination. See https://docs.gdax.com/#pagination
   def accountHistory(id: String, params: Map[String, String] = null) : Future[Option[Any]] = {
     val auth = CoinbaseAuth(apiKey,
-      secretKey, passPhrase, url + s"/accounts/$id/ledger", "GET").headers()
+      secretKey, passPhrase, url + s"/accounts/$id/ledger", "GET")
     return HttpJsonFutures.get(url + s"/accounts/$id/ledger", params, auth)
   }
 
   def accountHolds(id: String) : Future[Option[Any]] = {
     val auth = CoinbaseAuth(apiKey,
-      secretKey, passPhrase, url + s"/accounts/$id/holds", "GET").headers()
+      secretKey, passPhrase, url + s"/accounts/$id/holds", "GET")
     return HttpJsonFutures.get(url = url + s"/accounts/$id/holds", headers = auth)
   }
 
+  //TODO json: Map[String, Any] (need to figure out recursiveness on JSONObject
   def order(json: String) : Future[Option[Any]] = {
     val auth = CoinbaseAuth(apiKey,
-      secretKey, passPhrase, url + "/orders", "POST", json).headers()
+      secretKey, passPhrase, url + "/orders", "POST", json)
     return HttpJsonFutures.post(
       url = url + "/orders",
       headers = auth,
@@ -146,10 +147,16 @@ class Private(apiKey: String, secretKey: String, passPhrase: String) {
 }
 
 // Construct the Auth headers expected by GDAX
-case class CoinbaseAuth(apiKey: String, secretKey: String,
-    passPhrase: String, url: String, verb: String, data: String = "") {
+object CoinbaseAuth {
 
-  def headers() : Map[String, String] = {
+  def apply(
+    apiKey: String,
+    secretKey: String,
+    passPhrase: String,
+    url: String,
+    verb: String,
+    data: String = "") : Map[String, String] = {
+
     val timestamp: Long = System.currentTimeMillis / 1000
     val reqpath: String = new URL(url).getPath()
     val message = timestamp + verb.toUpperCase + reqpath + data
