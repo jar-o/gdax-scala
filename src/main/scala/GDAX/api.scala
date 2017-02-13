@@ -94,6 +94,20 @@ class Private(apiKey: String, secretKey: String, passPhrase: String) {
       secretKey, passPhrase, url + "/accounts", "GET").headers()
     return HttpJsonFutures.get(url = url + "/accounts", headers = auth)
   }
+
+  def account(id: String) : Future[Option[Any]] = {
+    val auth = CoinbaseAuth(apiKey,
+      secretKey, passPhrase, url + s"/accounts/$id", "GET").headers()
+    return HttpJsonFutures.get(url = url + s"/accounts/$id", headers = auth)
+  }
+
+  def accountHistory(id: String) : Future[Option[Any]] = {
+    val auth = CoinbaseAuth(apiKey,
+      secretKey, passPhrase, url + s"/accounts/$id/ledger", "GET").headers()
+    return HttpJsonFutures.get(url = url + s"/accounts/$id/ledger", headers = auth)
+  }
+
+
 }
 
 // Construct the Auth headers expected by GDAX

@@ -72,13 +72,34 @@ object Sample extends App {
   )
 
   authclient.accounts().onComplete {
-    case Success(resp) => { done += 1; println(resp + "\n^accounts\n") }
+    case Success(resp) => {
+      done += 1
+      resp.foreach( (el: Any ) => {
+        el.asInstanceOf[List[Map[Any,Any]]].foreach {
+          (m: Map[Any, Any]) => {
+            m("currency") match {
+              case "BTC" => {
+                authclient.account(m("id").asInstanceOf[String]).onComplete {
+                  case Success(resp) => { done += 1; println(resp + "\n^account\n") }
+                  case Failure(e) => e.printStackTrace
+                }
+                authclient.accountHistory(m("id").asInstanceOf[String]).onComplete {
+                  case Success(resp) => { done += 1; println(resp + "\n^accountHistory\n") }
+                  case Failure(e) => e.printStackTrace
+                }
+              }
+              case _ => ;
+            }
+          }
+        }
+      })
+    }
     case Failure(e) => e.printStackTrace
   }
 
   // hrm, this is just a glorified main thread sleep.
   var done = 0
-  def patience = Future { while(done < 7) { api.Client.sleep(1000) } }
+  def patience = Future { while(done < 9) { api.Client.sleep(1000) } }
   Await.ready(patience, Duration.Inf)
 
 }
