@@ -27,65 +27,50 @@ object Client {
   def sleep(duration: Long) { Thread.sleep(duration) }
 }
 
+object HttpJsonFutures {
+  def get(url: String, params: Map[String, String] = null) : Future[Option[Any]] = {
+    return Future {
+      val resp: HttpResponse[String] = if (params == null)
+        Http(url).asString else Http(url).params(params).asString
+      JSON.parseFull(resp.body)
+    }
+  }
+}
+
 class Public {
   // Default to sandbox environment
   var url = "https://api-public.sandbox.gdax.com"
 
   def products() : Future[Option[Any]] = {
-    return Future {
-      val resp: HttpResponse[String] = Http(url + "/products").asString
-      JSON.parseFull(resp.body)
-    }
+    return HttpJsonFutures.get(url + "/products")
   }
 
   def productOrderBook(id : String, level : String = "1") : Future[Option[Any]] = {
-    return Future {
-      val resp: HttpResponse[String] =
-        Http(url + s"/products/$id/book").param("level", level).asString
-      JSON.parseFull(resp.body)
-    }
-
+    return HttpJsonFutures.get(url + s"/products/$id/book", Map("level" -> level))
   }
 
-  def productTicker(id : String) : Future[Option[Any]] = {
-    return Future {
-      val resp: HttpResponse[String] =
-          Http(url + s"/products/$id/ticker").asString
-      JSON.parseFull(resp.body)
-    }
+  def productTicker(id: String) : Future[Option[Any]] = {
+    return HttpJsonFutures.get(url + s"/products/$id/ticker")
   }
 
   def productTrades(id : String) : Future[Option[Any]] = {
-    return Future {
-      val resp: HttpResponse[String] =
-          Http(url + s"/products/$id/trades").asString
-      JSON.parseFull(resp.body)
-    }
+    return HttpJsonFutures.get(url + s"/products/$id/trades")
   }
 
   // 24hr stats
   def productStats(id : String) : Future[Option[Any]] = {
-    return Future {
-      val resp: HttpResponse[String] =
-          Http(url + s"/products/$id/stats").asString
-      JSON.parseFull(resp.body)
-    }
+    return HttpJsonFutures.get(url + s"/products/$id/stats")
   }
+
   //TODO
   //def productHistoricRates(id : String) : Future[Option[Any]] = {}
 
   def currencies() : Future[Option[Any]] = {
-    return Future {
-      val resp: HttpResponse[String] = Http(url + "/currencies").asString
-      JSON.parseFull(resp.body)
-    }
+    return HttpJsonFutures.get(url + "/currencies")
   }
 
   def time() : Future[Option[Any]] = {
-    return Future {
-      val resp: HttpResponse[String] = Http(url + "/time").asString
-      JSON.parseFull(resp.body)
-    }
+    return HttpJsonFutures.get(url + "/time")
   }
 
 }
@@ -95,19 +80,14 @@ class Auth(apiKey: String, secretKey: String, passPhrase: String) {
   var url = "https://api-public.sandbox.gdax.com"
 
   var httpreq : HttpRequest = Http(url + "/accounts")//.postData("{\"helo\":1}")
-  val cbauth = CoinbaseAuth(
+  val auth = CoinbaseAuth(
     apiKey,
     secretKey,
     passPhrase,
     httpreq//,
     //"{\"helo\":1}" //ugh, TODO
   ).headers()
-  httpreq = httpreq.
-    header("CB-ACCESS-SIGN",cbauth("CB-ACCESS-SIGN")).
-    header("CB-ACCESS-TIMESTAMP",cbauth("CB-ACCESS-TIMESTAMP")).
-    header("CB-ACCESS-KEY",cbauth("CB-ACCESS-KEY")).
-    header("CB-ACCESS-PASSPHRASE",cbauth("CB-ACCESS-PASSPHRASE"))
-  //// WOOT now, just slog through the rest...
+  for ((k,v) <- auth) { httpreq.header(k,v) }
   val resp: HttpResponse[String] = httpreq.asString
   println(resp)
 }
