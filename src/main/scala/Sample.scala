@@ -106,15 +106,20 @@ object Sample extends App {
     case Failure(e) => e.printStackTrace
   }
 
-  // Insufficient funds
-  authclient.placeOrder("{\"size\":\"0.01\",\"price\":\"0.100\",\"side\":\"buy\",\"product_id\":\"BTC-USD\"}").onComplete {
-    case Success(Some(resp)) => {
-      tests -= 1
-      println(resp + "\n^order\n")
-      assert(resp.asInstanceOf[Map[String,String]]("message") == "Insufficient funds")
-    }
-    case Failure(e) => e.printStackTrace
-    case _ => ;
+  authclient.placeOrder(
+    Map("size" -> "0.01",
+      "price" -> "0.100",
+      "side" -> "buy",
+      "product_id" -> "BTC-USD"
+    )
+  ).onComplete {
+      case Success(Some(resp)) => {
+        tests -= 1
+        println(resp + "\n^order\n")
+        assert(resp.asInstanceOf[Map[String,String]]("message") == "Insufficient funds")
+      }
+      case Failure(e) => e.printStackTrace
+      case _ => ;
   }
 
   authclient.getOrders().onComplete {

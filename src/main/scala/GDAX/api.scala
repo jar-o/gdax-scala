@@ -1,5 +1,6 @@
 package GDAX.api
 
+import GDAX.util.JsonConverter
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
@@ -7,7 +8,6 @@ import scalaj.http._
 import scala.util.parsing.json._
 import scalaj.http.Base64
 import scalaj.http.HttpConstants._
-
 import java.net._
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
@@ -161,14 +161,14 @@ class Private(apiKey: String, secretKey: String, passPhrase: String) {
     return HttpJsonFutures.get(url = url + s"/orders/$id", headers = auth)
   }
 
-  //TODO json: Map[String, Any] (need to figure out recursiveness on JSONObject
-  def placeOrder(json: String) : Future[Option[Any]] = {
+  def placeOrder(json: Map[String, Any]) : Future[Option[Any]] = {
+    val jsonstr = JsonConverter.toJson(json)
     val auth = CoinbaseAuth(apiKey,
-      secretKey, passPhrase, url + "/orders", "POST", json)
+      secretKey, passPhrase, url + "/orders", "POST", jsonstr)
     return HttpJsonFutures.post(
       url = url + "/orders",
       headers = auth,
-      json = json
+      json = jsonstr
     )
   }
 
@@ -196,7 +196,6 @@ class Private(apiKey: String, secretKey: String, passPhrase: String) {
         "coinbase_account_id" -> coinbaseAccountId,
         "type" -> transferType
       )).toString()
-    println(json)
     val auth = CoinbaseAuth(apiKey,
       secretKey, passPhrase, url + "/transfers", "POST", json)
     return HttpJsonFutures.post(
