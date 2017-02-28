@@ -11,7 +11,7 @@ object JsonConverter {
           v match {
             case a: Map[_,_] => json += "\"" + key + "\":" + toJson(a)
             case a: List[_] => json += "\"" + key + "\":" + toJson(a)
-            case a: Int => json += "\"" + key + "\":" + a
+            case a: java.lang.Number => json += "\"" + key + "\":" + a.toString()
             case a: Boolean => json += "\"" + key + "\":" + a
             case a: String => json += "\"" + key + "\":\"" + escape(a) + "\""
             case _ => ;
@@ -24,7 +24,7 @@ object JsonConverter {
           el match {
             case a: Map[_,_] => list += toJson(a)
             case a: List[_] => list += toJson(a)
-            case a: Int => list += a.toString()
+            case a: java.lang.Number => list += a.toString()
             case a: Boolean => list += a.toString()
             case a: String => list += "\"" + escape(a) + "\""
             case _ => ;
@@ -42,5 +42,5 @@ object JsonConverter {
   }
 }
 
-// TODO should test this
-//println(JsonConverter.toJson(Map("a"-> 1, "b" -> Map("nes\"ted"->"yeah{\"some\":true"), "c" -> List(1,2,"3",List(true,false,true,Map("1"->"two","3"->"four"))))))
+// TODO add tests for this
+// println(util.JsonConverter.toJson(Map("a"-> 1, "b" -> Map("nes\"ted"->"yeah{\"some\":true"), "c" -> List(1,2,"3",List(true,false,true,Map("1"->"two","3"->"four","4"->4.123f,"long"->100L))))))
