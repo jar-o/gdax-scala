@@ -68,14 +68,23 @@ object Sample extends App {
     case Failure(e) => e.printStackTrace
   }
 
-  // Authenticated (private) client methods. Requires API credentials
-  val authclient = api.Client.authenticated(
-    sys.env("APIKEY"),
-    sys.env("APISECRET"),
-    sys.env("APIPASSPHRASE")
-  )
+  var authclient = None: Option[api.Private]
+  try {
+    // Authenticated (private) client methods. Requires API credentials
+    authclient = Some(api.Client.authenticated(
+      sys.env("APIKEY"),
+      sys.env("APISECRET"),
+      sys.env("APIPASSPHRASE")
+    ))
+  } catch {
+    case exc: NoSuchElementException => {
+      println("Need to set some environment vars for the rest of this to work.")
+      System.exit(0)
+    }
+  }
 
-  authclient.accounts().onComplete {
+  // Note, use .get accessor here because 'authclient' is wrapped in Option
+  authclient.get.accounts().onComplete {
     case Success(resp) => {
       tests -= 1
       resp.foreach( (el: Any ) => {
@@ -83,15 +92,15 @@ object Sample extends App {
           (m: Map[Any, Any]) => {
             m("currency") match {
               case "BTC" => {
-                authclient.account(m("id").asInstanceOf[String]).onComplete {
+                authclient.get.account(m("id").asInstanceOf[String]).onComplete {
                   case Success(resp) => { tests -= 1; println(resp + "\n^account\n") }
                   case Failure(e) => e.printStackTrace
                 }
-                authclient.accountHistory(m("id").asInstanceOf[String]).onComplete {
+                authclient.get.accountHistory(m("id").asInstanceOf[String]).onComplete {
                   case Success(resp) => { tests -= 1; println(resp + "\n^accountHistory\n") }
                   case Failure(e) => e.printStackTrace
                 }
-                authclient.accountHolds(m("id").asInstanceOf[String]).onComplete {
+                authclient.get.accountHolds(m("id").asInstanceOf[String]).onComplete {
                   case Success(resp) => { tests -= 1; println(resp + "\n^accountHolds\n") }
                   case Failure(e) => e.printStackTrace
                 }
@@ -106,7 +115,7 @@ object Sample extends App {
     case Failure(e) => e.printStackTrace
   }
 
-  authclient.placeOrder(
+  authclient.get.placeOrder(
     Map("size" -> "0.01",
       "price" -> "0.100",
       "side" -> "buy",
@@ -122,12 +131,12 @@ object Sample extends App {
       case _ => ;
   }
 
-  authclient.getOrders().onComplete {
+  authclient.get.getOrders().onComplete {
     case Success(resp) => { tests -= 1; println(resp + "\n^getOrders\n") }
     case Failure(e) => e.printStackTrace
   }
 
-  authclient.getOrder("68e6a28f-ae28-4788-8d4f-5ab4e5e5ae08").onComplete {
+  authclient.get.getOrder("68e6a28f-ae28-4788-8d4f-5ab4e5e5ae08").onComplete {
     case Success(Some(resp)) => {
       tests -= 1
       println(resp + "\n^getOrder\n")
@@ -137,7 +146,7 @@ object Sample extends App {
     case _ => ;
   }
 
-  authclient.cancelOrder("68e6a28f-ae28-4788-8d4f-5ab4e5e5ae08").onComplete {
+  authclient.get.cancelOrder("68e6a28f-ae28-4788-8d4f-5ab4e5e5ae08").onComplete {
     case Success(Some(resp)) => {
       tests -= 1
       println(resp + "\n^cancelOrder\n")
@@ -148,7 +157,7 @@ object Sample extends App {
   }
 
   // Seem to be getting timeout, perhaps because bogus coinbase_account_id?
-  // authclient.deposit("10.00", "b5344d81b42e65f81af9ceba").onComplete {
+  // authclient.get.deposit("10.00", "b5344d81b42e65f81af9ceba").onComplete {
   //   case Success(Some(resp)) => {
   //     tests -= 1
   //     println(resp + "\n^deposit\n")
